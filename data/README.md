@@ -12,6 +12,19 @@
     in which a tie between `(i,j)` exists iff both agree on its existance, i.e.
     we are using the intersection method.
     
+    
+## Accuracy
+
+The accuracy files were created by the R script [accuracy.R]. Currently, the
+following metrics were used to compute accuracy:
+
+- `Hamman (S)`           = "shamann",
+- `Hamming (D)`          = "dhamming",
+- `Mean Manhattan (D)`   = "dmh",
+- `Michael (S)`          = "smichael",
+- `Sized Difference (D)` = "dsd"
+  
+These are available in the R package [similR](http://github.com/muriteams/similR).
 
 ## Required files:
 

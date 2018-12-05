@@ -160,3 +160,4 @@ accuracy_truth_range %>%
 
 # Saving the original data -----------------------------------------------------
 readr::write_csv(accuracy_truth, "data/accuracy_truth.csv")
+
