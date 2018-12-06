@@ -10,17 +10,14 @@ library(magrittr)
 # The NAs are:
 # 4: Skip, I am Teammate [A-Z]
 # 5: None (if this does not apply to any teammate).
-IDS   <- c(LETTERS[1:4], NA, NA, "E")
-IDS_E <- c(LETTERS[1:3], NA, NA, "D")
-
-expandit <- function(x,i) {
-  
-}
+IDS   <- c(LETTERS[1:5], NA, NA)
+IDS_C <- c("A", "B", "D", NA, "E", NA)
 
 groups_sizes <- readr::read_csv("data-raw/Study1_Group sizes.csv") %>%
   rename(group = Group, n = groupSize)
 
-edgelists <- haven::read_sav("data-raw/MURI_Survey_3.sav") %>%
+edgelists <-
+  haven::read_sav("data-raw/MURI Survey 3_November 9, 2018_17.04.sav") %>%
   
   # Some weird cases with no upper case
   mutate(Survey3_PID = toupper(Survey3_PID)) %>%
@@ -31,23 +28,22 @@ edgelists <- haven::read_sav("data-raw/MURI_Survey_3.sav") %>%
   filter(!is.na(Value)) %>%
   
   # Retrieving ego/alter
-  transmute(
+  mutate(
     group  = as.integer(stringr::str_extract(Survey3_PID, "^[0-9]+")),
     viewer = stringr::str_extract(Survey3_PID, "[A-Z]$"),
     ego    = stringr::str_extract(Code, "(?<=T)[A-Z]"),
     alter  = as.integer(stringr::str_extract(Code, "[0-9]$")),
-    alter  = if_else(alter == 7L, 6L, alter),
     alter  = case_when(
       ego == "A" ~ IDS[-1][alter],
       ego == "B" ~ IDS[-2][alter],
-      ego == "C" ~ IDS[-3][alter],
+      ego == "C" ~ IDS_C[alter],
       ego == "D" ~ IDS[-4][alter],
-      ego == "E" ~ IDS_E[alter],
+      ego == "E" ~ IDS[-5][alter],
       TRUE ~ "ERROR"
     ),
     survey  = 3L,
     network = 1L
-  ) %>%
+  ) %>% 
   filter(!is.na(alter)) %>%
   
   # Merging group size. We use full to make sure that we have all the data
@@ -61,6 +57,20 @@ networks <- edgelists %>%
     # Group ids
     n   <- g$n[1]
     ids <- LETTERS[1:n]
+    
+    # Validating nominations
+    if (!all(g$alter %in% ids) | !all(g$ego %in% ids)) {
+      
+      # Warning!
+      message(
+        "In group ", g$group[1L],
+        " there are some ego/alter mentioned but not part of the team... ",
+        appendLF = FALSE)
+      
+      # So we have to filter in order to avoid errors
+      g <- filter(g, alter %in% ids, ego %in% ids)
+      
+    }
     
     # Looping at the group level
     M <- matrix(0, ncol = n, nrow = n, dimnames = list(ids, ids))
@@ -92,5 +102,30 @@ networks <- lapply(networks, function(n) {
   n
 })
 
-saveRDS(networks, "data/networks_advice_css.rda")
+saveRDS(networks, "data/networks_advice_css_jen.rds")
+
+# ------------------------------------------------------------------------------
+# Comparing with original data
+# ------------------------------------------------------------------------------
+
+networks_original <- readRDS("data/networks_advice_css.rda")
+
+missmatches <- Map(function(a,b) !identical(a,b), a = networks, b=networks_original) %>%
+  unlist %>% which
+
+for (m in missmatches[6])
+  Map(function(a,b) sum(a-b, na.rm = TRUE), a = networks[[m]], b=networks_original[[m]]) %>%
+    unlist %>% print
+
+networks[["7"]]$D
+networks_original[["7"]]$D
+
+haven::read_sav("data-raw/MURI_Survey_3.sav") %>%
+  filter(Survey3_PID == "07D") %>%
+  select(Survey3_PID, starts_with("TCnetwork"))
+
+haven::read_sav("data-raw/MURI Survey 3_November 9, 2018_17.04.sav") %>%
+  filter(Survey3_PID == "07D") %>%
+  select(Survey3_PID, starts_with("TCnetwork"))
+  
 

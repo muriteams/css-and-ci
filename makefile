@@ -1,2 +1,2 @@
 copy:
-	cp -R ../css-and-ci/ ~/Dropbox/MURI\ USC/.
+	cp -Rf ../css-and-ci/ ~/Dropbox/MURI\ USC/.

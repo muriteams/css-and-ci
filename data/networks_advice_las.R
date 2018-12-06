@@ -3,7 +3,7 @@ library(magrittr)
 library(similR)
 
 #read in data of participant perceptions of advice ties among their other teammates 
-advice_css <- readRDS("data/networks_advice_css.rds")
+advice_css <- readRDS("data/networks_advice_css_jen.rds")
 truth      <- readRDS("data/networks_truth.rds")[["3"]]$advice 
 
 groups_ids <- names(advice_css) %>%

@@ -24,7 +24,7 @@ dat_individual <- dat_individual %>%
 
 networks_las        <- readRDS("data/networks_advice_las.rds")
 networks_truth      <- readRDS("data/networks_truth.rds")[["3"]]$advice
-networks_advice_css <- readRDS("data/networks_advice_css.rds")
+networks_advice_css <- readRDS("data/networks_advice_css_jen.rds")
 networks_sizes      <- readr::read_csv("data-raw/Study1_Group sizes.csv")
 
 # Comparing LAS vs CSS ---------------------------------------------------------
