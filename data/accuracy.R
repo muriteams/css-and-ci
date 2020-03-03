@@ -159,5 +159,6 @@ accuracy_truth_range %>%
   ggsave("data/accuracy_truth.png", width = 7, height = 7)
 
 # Saving the original data -----------------------------------------------------
+readr::write_csv(accuracy_las, "data/accuracy_las.csv")
 readr::write_csv(accuracy_truth, "data/accuracy_truth.csv")
 
